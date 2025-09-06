@@ -1,0 +1,6 @@
+<!-- Placeholder SVG for default thumbnail -->
+<svg width="320" height="180" viewBox="0 0 320 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="180" fill="#f3f4f6"/>
+  <rect x="135" y="75" width="50" height="30" rx="5" fill="#9ca3af"/>
+  <polygon points="150,85 150,95 160,90" fill="#ffffff"/>
+</svg>

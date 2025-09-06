@@ -1,0 +1,75 @@
+<div class="dashboard">
+  <h2>Dashboard de Resultados</h2>
+  
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="card">
+      <h3>Total de Vídeos</h3>
+      <div class="stat">{{ totalVideos }}</div>
+    </div>
+    <div class="card">
+      <h3>Comentários (análise de sentimento)</h3>
+      <div class="stat">{{ sentimentTotal }}</div>
+    </div>
+    <div class="card">
+      <h3>Operações Únicas</h3>
+      <div class="stat">{{ uniqueOperationsCount }}</div>
+    </div>
+    <div class="card">
+      <h3>Eventos com Repetição</h3>
+      <div class="stat">{{ repeatedEventsCount }}</div>
+    </div>
+  </div>
+
+  <div [hidden]="!(datasets && datasets.length)">
+
+    <!-- Two-column charts: Year distribution + Top operations -->
+    <div class="section two-column-charts">
+      <div class="col">
+        <h3>Distribuição Temporal por Ano</h3>
+        <div class="chart-wrap">
+          <p-chart type="bar" [data]="videosByYearChartData" [options]="videosByYearChartOptions"></p-chart>
+        </div>
+      </div>
+
+      <div class="col">
+        <h3>Top 10 Operações por Volume</h3>
+        <div class="chart-wrap">
+          <p-chart type="bar" [data]="topOpsChartData" [options]="topOpsChartOptions"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sentiment Charts -->
+    <div class="section sentiment-section">
+      <h3>Análise de Sentimento (comentários)</h3>
+
+      <div class="sentiment-grid">
+        <div class="sentiment-card">
+          <h4>Distribuição (new_BERT)</h4>
+          <div style="height:180px">
+            <p-chart type="doughnut" [data]="sentimentChartData" [options]="sentimentChartOptions"></p-chart>
+          </div>
+        </div>
+
+        <div class="sentiment-card">
+          <h4>Métricas Bootstrap (médias)</h4>
+          <div class="bootstrap-chart-grid">
+            <div *ngFor="let bc of bootstrapCharts" class="bootstrap-chart-item">
+              <h5>{{ bc.key }}</h5>
+              <div class="bootstrap-chart-wrap">
+                <p-chart type="bar" [data]="bc.data" [options]="bc.options" style="height:100%"></p-chart>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <ng-template #loading>
+    <p>Carregando dados...</p>
+  </ng-template>
+
+</div>
