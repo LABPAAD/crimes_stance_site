@@ -4,13 +4,14 @@ import { ChartModule } from 'primeng/chart';
 import { Router } from '@angular/router';
 import { EventsService } from '../../services/events.service';
 import { SentimentService } from '../../services/sentiment.service';
+import { FooterComponent } from "../../components/footer/footer.component";
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ChartModule],
+  imports: [CommonModule, ChartModule, FooterComponent],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: []
 })
 export class DashboardComponent implements OnInit {
   public datasets: any[] = [];
@@ -180,6 +181,11 @@ export class DashboardComponent implements OnInit {
               ];
             }
           }
+        }
+      },
+      onHover: (event: any, elements: any[]) => {
+        if (event.native && event.native.target) {
+          event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
         }
       },
       onClick: (event: any, elements: any[]) => {
@@ -358,5 +364,15 @@ export class DashboardComponent implements OnInit {
     } catch (error) {
       console.error('Erro ao salvar padrão da operação:', error);
     }
+  }
+
+  // Utility method for number formatting
+  formatNumber(num: number): string {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toLocaleString('pt-BR');
   }
 }

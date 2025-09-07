@@ -2,7 +2,13 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class SentimentService {
-  private base = '/assets/data/sentiment';
+  private base: string;
+
+  constructor() {
+    const baseTag = document.getElementsByTagName('base')[0];
+    const baseHref = (baseTag && baseTag.getAttribute('href')) || '/';
+    this.base = baseHref.endsWith('/') ? `${baseHref}assets/data/sentiment` : `${baseHref}/assets/data/sentiment`;
+  }
 
   private async fetchJson(fileName: string): Promise<any> {
     try {

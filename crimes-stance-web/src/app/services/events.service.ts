@@ -2,7 +2,14 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class EventsService {
-    private base = '/assets/data/events';
+    private base: string;
+
+    constructor() {
+        // Construir base usando o <base href> presente no index.html para suportar GitHub Pages
+        const baseTag = document.getElementsByTagName('base')[0];
+        const baseHref = (baseTag && baseTag.getAttribute('href')) || '/';
+        this.base = baseHref.endsWith('/') ? `${baseHref}assets/data/events` : `${baseHref}/assets/data/events`;
+    }
 
     private async fetchJson(fileName: string): Promise<any> {
         try {

@@ -1,59 +1,84 @@
 # CrimesStanceWeb
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.2.
+Este repositório contém a aplicação web "Crimes Stance", uma interface em Angular para visualizar métricas, análises e vídeos relacionados a operações e insights de sentimento.
 
-## Development server
+## Conteúdo
+- Código front-end em Angular (versão 20.x).
+- Visualizações e gráficos (Chart.js / PrimeNG).
+- Dados de exemplo em `src/assets/data/`.
 
-To start a local development server, run:
+## Pré-requisitos
+- Node.js (recomenda-se 18+)
+- npm (recomenda-se 9+)
+- Acesso ao repositório Git (para publicar no GitHub Pages)
 
-```bash
+## Instalação
+1. Clone o repositório e entre na pasta do projeto:
+
+```powershell
+git clone <url-do-repo>
+cd crimes-stance-web
+```
+
+2. Instale as dependências:
+
+```powershell
+npm install
+```
+
+3. (Opcional) se usar Windows PowerShell e houver problemas com permissões, rode o terminal como Administrador.
+
+## Execução em desenvolvimento
+Para iniciar a aplicação em modo de desenvolvimento (hot-reload):
+
+```powershell
+npm start
+# ou
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Abra http://localhost:4200 no navegador.
 
-## Code scaffolding
+## Build de produção
+Para gerar uma versão otimizada de produção:
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```powershell
+npm run build
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Os arquivos compilados serão emitidos em `dist/crimes-stance-web` (conforme `angular.json`).
 
-```bash
-ng generate --help
+## Deploy para GitHub Pages
+Este projeto já possui um script npm para gerar o build em modo produção e publicar no branch `gh-pages` do repositório remoto.
+
+1. Verifique que o `remote` do git aponta para o repositório correto (ex.: `origin`):
+
+```powershell
+git remote -v
 ```
 
-## Building
+2. Execute o script de deploy:
 
-To build the project run:
-
-```bash
-ng build
+```powershell
+npm run build:ghpages
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+O script faz o build em produção e em seguida chama `angular-cli-ghpages` para publicar o conteúdo da pasta `dist/crimes-stance-web` no branch `gh-pages`.
 
-## Running unit tests
+Observações / resolução de problemas comuns:
+- Se ocorrer erro `ENOENT` sobre arquivos faltando em `dist`, garanta que o build executou com sucesso antes do deploy.
+- Se o site não aparecer no GitHub Pages, confirme no repositório em Settings → Pages que a fonte está em `gh-pages` (branch) ou espere alguns minutos após o deploy automático.
+- Se `angular-cli-ghpages` não estiver instalada globalmente, o script usa `npx` para executá-la localmente; certifique-se de ter rede no momento do deploy.
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Testes
+Executar testes unitários:
 
-```bash
-ng test
+```powershell
+npm test
 ```
 
-## Running end-to-end tests
+## Contribuição
+Pull requests são bem-vindos. Antes de abrir PRs, rode os builds e testes localmente.
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Licença
+Consulte o arquivo `LICENSE` (se presente) ou coordene com os mantenedores do projeto.
