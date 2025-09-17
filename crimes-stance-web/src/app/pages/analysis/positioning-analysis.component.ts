@@ -5,10 +5,36 @@ import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'primeng/chart';
 import { SentimentService } from '../../services/sentiment.service';
 
+import { AnalysisStatCardComponent } from '../../components/opinion-analysis/analysis-stat-card/analysis-stat-card';
+import { PositioningDistributionComponent } from '../../components/opinion-analysis/positioning-distribution/positioning-distribution';
+import { TopicsCardComponent } from '../../components/opinion-analysis/topics-card/topics-card';
+import { TemporalEvolutionChartComponent } from '../../components/opinion-analysis/temporal-evolution-chart/temporal-evolution-chart';
+import { PositioningDoughnutChartComponent } from '../../components/opinion-analysis/positioning-doughnut-chart/positioning-doughnut-chart';
+import { MetricsBarChartComponent } from '../../components/opinion-analysis/metrics-bar-chart/metrics-bar-chart';
+import { BootstrapResultsCardComponent } from '../../components/opinion-analysis/bootstrap-results-card/bootstrap-results-card';
+import { DetailedMetricsCardComponent } from '../../components/opinion-analysis/detailed-metrics-card/detailed-metrics-card';
+import { CommentsSampleCardComponent } from '../../components/opinion-analysis/comments-sample-card/comments-sample-card';
+import { ModelAccuracyCardComponent } from '../../components/opinion-analysis/model-accuracy-card/model-accuracy-card';
+
 @Component({
   selector: 'app-opinion-analysis',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ChartModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    ChartModule,
+    AnalysisStatCardComponent,
+    PositioningDistributionComponent,
+    TopicsCardComponent,
+    TemporalEvolutionChartComponent,
+    PositioningDoughnutChartComponent,
+    MetricsBarChartComponent,
+    BootstrapResultsCardComponent,
+    DetailedMetricsCardComponent,
+    CommentsSampleCardComponent,
+    ModelAccuracyCardComponent,
+  ],
   template: `
     <div class="space-y-6">
       <div class="flex items-center justify-between">
@@ -20,353 +46,123 @@ import { SentimentService } from '../../services/sentiment.service';
 
       <!-- Métricas principais -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <i class="bi bi-chat-text text-blue-600"></i>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-slate-900">
-                <ng-container *ngIf="!isLoading">{{ formatNumber(totalComments) }}</ng-container>
-                <ng-container *ngIf="isLoading">...</ng-container>
-              </div>
-              <div class="text-sm text-slate-600">Opiniões Analisadas</div>
-            </div>
-          </div>
-        </div>
+        <app-analysis-stat-card
+          [label]="'Opiniões Analisadas'"
+          [value]="formatNumber(totalComments)"
+          [icon]="'bi-chat-text'"
+          [color]="'blue'"
+          [isLoading]="isLoading">
+        </app-analysis-stat-card>
 
-        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <i class="bi bi-emoji-smile text-green-600"></i>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-slate-900">
-                <ng-container *ngIf="!isLoading">{{ sentimentPercentages.positive }}%</ng-container>
-                <ng-container *ngIf="isLoading">...</ng-container>
-              </div>
-              <div class="text-sm text-slate-600">Sentimento Positivo</div>
-            </div>
-          </div>
-        </div>
+        <app-analysis-stat-card
+          [label]="'Aprovação'"
+          [value]="sentimentPercentages.positive + '%'"
+          [icon]="'bi-emoji-smile'"
+          [color]="'green'"
+          [isLoading]="isLoading">
+        </app-analysis-stat-card>
 
-        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-              <i class="bi bi-emoji-frown text-red-600"></i>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-slate-900">
-                <ng-container *ngIf="!isLoading">{{ sentimentPercentages.negative }}%</ng-container>
-                <ng-container *ngIf="isLoading">...</ng-container>
-              </div>
-              <div class="text-sm text-slate-600">Sentimento Negativo</div>
-            </div>
-          </div>
-        </div>
+        <app-analysis-stat-card
+          [label]="'Desaprovação'"
+          [value]="sentimentPercentages.negative + '%'"
+          [icon]="'bi-emoji-frown'"
+          [color]="'red'"
+          [isLoading]="isLoading">
+        </app-analysis-stat-card>
 
-        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <i class="bi bi-emoji-neutral text-yellow-600"></i>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-slate-900">
-                <ng-container *ngIf="!isLoading">{{ sentimentPercentages.neutral }}%</ng-container>
-                <ng-container *ngIf="isLoading">...</ng-container>
-              </div>
-              <div class="text-sm text-slate-600">Sentimento Neutro</div>
-            </div>
-          </div>
-        </div>
+        <app-analysis-stat-card
+          [label]="'Neutro'"
+          [value]="sentimentPercentages.neutral + '%'"
+          [icon]="'bi-emoji-neutral'"
+          [color]="'yellow'"
+          [isLoading]="isLoading">
+        </app-analysis-stat-card>
       </div>
 
-      <!-- Distribuição de sentimentos e tópicos -->
+      <!-- Distribuição de posicinamento e tópicos -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Distribuição de sentimentos -->
-        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-          <h3 class="text-lg font-semibold text-slate-900 mb-4">Distribuição de Sentimentos</h3>
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-4 h-4 bg-green-500 rounded"></div>
-                <span class="text-slate-700">Positivo ({{ formatNumber(sentimentCounts['1'] || 0) }} comentários)</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="w-24 bg-slate-200 rounded-full h-2">
-                  <div class="bg-green-500 h-2 rounded-full" [style.width.%]="sentimentPercentages.positive"></div>
-                </div>
-                <span class="text-sm font-medium text-slate-600">{{ sentimentPercentages.positive }}%</span>
-              </div>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-4 h-4 bg-red-500 rounded"></div>
-                <span class="text-slate-700">Negativo ({{ formatNumber(sentimentCounts['-1'] || 0) }} comentários)</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="w-24 bg-slate-200 rounded-full h-2">
-                  <div class="bg-red-500 h-2 rounded-full" [style.width.%]="sentimentPercentages.negative"></div>
-                </div>
-                <span class="text-sm font-medium text-slate-600">{{ sentimentPercentages.negative }}%</span>
-              </div>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-4 h-4 bg-yellow-500 rounded"></div>
-                <span class="text-slate-700">Neutro ({{ formatNumber(sentimentCounts['0'] || 0) }} comentários)</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="w-24 bg-slate-200 rounded-full h-2">
-                  <div class="bg-yellow-500 h-2 rounded-full" [style.width.%]="sentimentPercentages.neutral"></div>
-                </div>
-                <span class="text-sm font-medium text-slate-600">{{ sentimentPercentages.neutral }}%</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- Distribuição de posicinamento -->
+        <app-positioning-distribution
+          [counts]="sentimentCounts"
+          [percentages]="sentimentPercentages">
+        </app-positioning-distribution>
 
         <!-- Tópicos mais discutidos -->
-        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-          <h3 class="text-lg font-semibold text-slate-900 mb-4">Tópicos Mais Discutidos (Nordeste 2021)</h3>
-          <div class="space-y-3">
-            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <i class="bi bi-shield text-blue-600 text-sm"></i>
-                </div>
-                <span class="text-slate-900">Segurança Pública</span>
-              </div>
-              <span class="font-medium text-slate-700">{{ formatNumber(topicCounts.security) }}</span>
-            </div>
-            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                  <i class="bi bi-exclamation-triangle text-red-600 text-sm"></i>
-                </div>
-                <span class="text-slate-900">Violência Urbana</span>
-              </div>
-              <span class="font-medium text-slate-700">{{ formatNumber(topicCounts.violence) }}</span>
-            </div>
-            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                  <i class="bi bi-people text-green-600 text-sm"></i>
-                </div>
-                <span class="text-slate-900">Polícias</span>
-              </div>
-              <span class="font-medium text-slate-700">{{ formatNumber(topicCounts.police) }}</span>
-            </div>
-            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <i class="bi bi-building text-purple-600 text-sm"></i>
-                </div>
-                <span class="text-slate-900">Gestão Pública</span>
-              </div>
-              <span class="font-medium text-slate-700">{{ formatNumber(topicCounts.management) }}</span>
-            </div>
-          </div>
-        </div>
+        <app-topics-card [topicCounts]="topicCounts"></app-topics-card>
       </div>
 
-      <!-- Evolução temporal dos sentimentos -->
-      <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-        <h3 class="text-lg font-semibold text-slate-900 mb-4">Evolução Temporal dos Sentimentos</h3>
-        <div class="h-64 bg-slate-50 rounded-lg flex items-center justify-center text-slate-500">
-          <div class="text-center">
-            <i class="bi bi-graph-up text-4xl mb-2"></i>
-            <p>Gráfico de linha mostrando evolução dos sentimentos ao longo do tempo</p>
-          </div>
-        </div>
-      </div>
+      <!-- Evolução temporal dos posicinamento -->
+      <app-temporal-evolution-chart></app-temporal-evolution-chart>
 
       <!-- Gráficos -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-          <h3 class="text-lg font-semibold text-slate-900 mb-4">Distribuição de Sentimentos (Gráfico)</h3>
-          <div class="h-64">
-            <p-chart type="doughnut" [data]="sentimentChartData" [options]="sentimentChartOptions"></p-chart>
-          </div>
-        </div>
-        
-        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-          <h3 class="text-lg font-semibold text-slate-900 mb-4">Métricas por Técnica</h3>
-          <div class="h-64">
-            <p-chart type="bar" [data]="metricsChartData" [options]="metricsChartOptions"></p-chart>
-          </div>
-        </div>
+        <!-- Distribuição de Posicionamentos (Gráfico) -->
+        <app-positioning-doughnut-chart
+          [data]="sentimentChartData"
+          [options]="sentimentChartOptions">
+        </app-positioning-doughnut-chart>
+
+        <!-- Métricas por Técnica -->
+        <app-metrics-bar-chart
+          [data]="metricsChartData"
+          [options]="metricsChartOptions">
+        </app-metrics-bar-chart>
       </div>
 
       <!-- Bootstrap Results -->
-      <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6" *ngIf="bootstrapGroups.length > 0">
-        <h3 class="text-lg font-semibold text-slate-900 mb-4">Resultados Bootstrap (Intervalos de Confiança)</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div *ngFor="let group of bootstrapGroups" class="border border-slate-200 rounded-lg p-4">
-            <h4 class="font-semibold text-slate-900 mb-3 capitalize">{{ group.metric }}</h4>
-            <div class="space-y-3">
-              <div *ngFor="let item of group.items" class="space-y-2">
-                <div class="text-sm text-slate-600">Classe {{ item.class }}</div>
-                <div class="relative bg-slate-100 h-4 rounded-full">
-                  <div class="absolute h-full bg-blue-200 rounded-full" 
-                       [style.left.%]="item.lower_ci * 100"
-                       [style.width.%]="(item.upper_ci - item.lower_ci) * 100">
-                  </div>
-                  <div class="absolute w-0.5 h-full bg-blue-600" 
-                       [style.left.%]="item.mean * 100"></div>
-                </div>
-                <div class="flex justify-between text-xs text-slate-500">
-                  <span>{{ (item.lower_ci * 100).toFixed(1) }}%</span>
-                  <strong class="text-slate-700">{{ (item.mean * 100).toFixed(1) }}%</strong>
-                  <span>{{ (item.upper_ci * 100).toFixed(1) }}%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-bootstrap-results-card
+        *ngIf="bootstrapGroups.length > 0"
+        [groups]="bootstrapGroups">
+      </app-bootstrap-results-card>
 
       <!-- Métricas Detalhadas por Técnica -->
-      <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-        <h3 class="text-lg font-semibold text-slate-900 mb-4">Métricas Detalhadas por Técnica</h3>
-        
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-slate-700 mb-2">Filtrar por técnica:</label>
-          <select [(ngModel)]="selectedTechnique" (change)="filterMetrics()" 
-                  class="border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="">Todas as técnicas</option>
-            <option *ngFor="let tech of availableTechniques" [value]="tech">{{ tech }}</option>
-          </select>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div *ngFor="let metric of filteredMetrics" class="border border-slate-200 rounded-lg p-4 bg-slate-50">
-            <div class="flex justify-between items-center mb-2">
-              <h4 class="font-semibold text-slate-900">{{ metric.tecnica }}</h4>
-              <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">{{ metric.cenario }}</span>
-            </div>
-            <div class="space-y-3">
-              <div class="space-y-1">
-                <div class="flex justify-between text-sm">
-                  <span>Acurácia</span>
-                  <span class="font-medium">{{ (metric.acu * 100).toFixed(1) }}%</span>
-                </div>
-                <div class="w-full bg-slate-200 rounded-full h-2">
-                  <div class="bg-blue-500 h-2 rounded-full" [style.width.%]="metric.acu * 100"></div>
-                </div>
-              </div>
-              <div class="space-y-1">
-                <div class="flex justify-between text-sm">
-                  <span>Precisão</span>
-                  <span class="font-medium">{{ (metric.pre * 100).toFixed(1) }}%</span>
-                </div>
-                <div class="w-full bg-slate-200 rounded-full h-2">
-                  <div class="bg-green-500 h-2 rounded-full" [style.width.%]="metric.pre * 100"></div>
-                </div>
-              </div>
-              <div class="space-y-1">
-                <div class="flex justify-between text-sm">
-                  <span>Recall</span>
-                  <span class="font-medium">{{ (metric.rev * 100).toFixed(1) }}%</span>
-                </div>
-                <div class="w-full bg-slate-200 rounded-full h-2">
-                  <div class="bg-yellow-500 h-2 rounded-full" [style.width.%]="metric.rev * 100"></div>
-                </div>
-              </div>
-              <div class="space-y-1">
-                <div class="flex justify-between text-sm">
-                  <span>F1-Score</span>
-                  <span class="font-medium">{{ (metric.f1 * 100).toFixed(1) }}%</span>
-                </div>
-                <div class="w-full bg-slate-200 rounded-full h-2">
-                  <div class="bg-purple-500 h-2 rounded-full" [style.width.%]="metric.f1 * 100"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-detailed-metrics-card
+        *ngIf="metrics.length > 0"
+        [allMetrics]="metrics">
+      </app-detailed-metrics-card>
 
       <!-- Amostra de Comentários -->
-      <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-        <h3 class="text-lg font-semibold text-slate-900 mb-4">Amostra de Comentários Analisados</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div *ngFor="let comment of sampleComments" 
-               class="border rounded-lg p-4 border-l-4"
-               [ngClass]="{
-                 'border-l-red-500 bg-red-50': comment.new_BERT === -1,
-                 'border-l-yellow-500 bg-yellow-50': comment.new_BERT === 0,
-                 'border-l-green-500 bg-green-50': comment.new_BERT === 1
-               }">
-            <div class="flex justify-between items-center mb-2">
-              <span class="px-2 py-1 rounded text-xs font-medium"
-                    [ngClass]="{
-                      'bg-red-100 text-red-800': comment.new_BERT === -1,
-                      'bg-yellow-100 text-yellow-800': comment.new_BERT === 0,
-                      'bg-green-100 text-green-800': comment.new_BERT === 1
-                    }">
-                {{ getSentimentLabel(comment.new_BERT) }}
-              </span>
-              <span class="text-xs text-slate-500">{{ formatDate(comment.timestamp) }}</span>
-            </div>
-            <p class="text-sm text-slate-700 mb-2 line-clamp-3">{{ comment.comentario }}</p>
-            <div class="flex justify-between text-xs text-slate-500">
-              <span>Canal: {{ comment.canal }}</span>
-              <span>{{ comment.curtidas }} curtidas</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-comments-sample-card
+        *ngIf="sampleComments.length > 0"
+        [comments]="sampleComments">
+      </app-comments-sample-card>
 
       <!-- Precisão do modelo -->
-      <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-        <h3 class="text-lg font-semibold text-slate-900 mb-4">Precisão do Modelo BERT</h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="text-center p-4 bg-slate-50 rounded-lg">
-            <div class="text-xl font-bold text-blue-600">87%</div>
-            <div class="text-sm text-slate-600">Precisão Geral</div>
-          </div>
-          <div class="text-center p-4 bg-slate-50 rounded-lg">
-            <div class="text-xl font-bold text-green-600">91%</div>
-            <div class="text-sm text-slate-600">Recall</div>
-          </div>
-          <div class="text-center p-4 bg-slate-50 rounded-lg">
-            <div class="text-xl font-bold text-purple-600">89%</div>
-            <div class="text-sm text-slate-600">F1-Score</div>
-          </div>
-        </div>
-      </div>
+      <app-model-accuracy-card
+        [precision]="modelAccuracy.precision"
+        [recall]="modelAccuracy.recall"
+        [f1Score]="modelAccuracy.f1Score">
+      </app-model-accuracy-card>
     </div>
   `,
   styles: []
 })
 export class OpinionAnalysisComponent implements OnInit {
-  
+
+  modelAccuracy = { precision: 0, recall: 0, f1Score: 0 };
+
   // Dados do serviço
   totalComments = 0;
   sentimentCounts: Record<string, number> = { '-1': 0, '0': 0, '1': 0 };
   sentimentPercentages = { negative: 0, neutral: 0, positive: 0 };
   topicCounts = { security: 0, violence: 0, police: 0, management: 0 };
   isLoading = true;
-  
+
   // Dados para gráficos e análises avançadas
   metrics: any[] = [];
-  filteredMetrics: any[] = [];
-  selectedTechnique = '';
-  availableTechniques: string[] = [];
-  
+
   sentimentChartData: any = {};
   sentimentChartOptions: any = {};
   metricsChartData: any = {};
   metricsChartOptions: any = {};
-  
+
   bootstrapStats: any[] = [];
   bootstrapGroups: any[] = [];
   sampleComments: any[] = [];
   datasetInfo: any = {};
-  
+
   constructor(private sentimentService: SentimentService) {}
-  
+
   async ngOnInit() {
     await this.loadAllData();
     this.prepareSentimentChart();
@@ -376,11 +172,11 @@ export class OpinionAnalysisComponent implements OnInit {
   async loadAllData() {
     try {
       const data = await this.sentimentService.listAll();
-      
+
       // Dados dos comentários
       this.totalComments = data.comments.length;
       this.sentimentCounts = this.sentimentService.getSentimentCounts(data.comments);
-      
+
       // Calcular percentuais
       if (this.totalComments > 0) {
         this.sentimentPercentages = {
@@ -388,7 +184,7 @@ export class OpinionAnalysisComponent implements OnInit {
           neutral: Math.round((this.sentimentCounts['0'] / this.totalComments) * 100),
           positive: Math.round((this.sentimentCounts['1'] / this.totalComments) * 100)
         };
-        
+
         // Calcular contagens aproximadas de tópicos baseadas no total
         this.topicCounts = {
           security: Math.floor(this.totalComments * 0.65),
@@ -398,13 +194,18 @@ export class OpinionAnalysisComponent implements OnInit {
         };
 
         // Selecionar comentários de amostra
-        this.sampleComments = data.comments
-          .filter((comment: any) => comment.text && comment.text.length > 50)
-          .slice(0, 10)
-          .map((comment: any) => ({
-            ...comment,
-            sentimentLabel: this.getSentimentLabel(comment.new_BERT || comment.sentiment)
-          }));
+        // 1. Filtra todos os comentários que têm texto e são longos o suficiente
+        const allValidComments = data.comments.filter(
+          (comment: any) => comment.comentario && comment.comentario.length > 50
+        );
+
+        // 2. Pega os 2 primeiros comentários de cada classe
+        const positiveSamples = allValidComments.filter((c: any) => c.new_BERT === 1).slice(0, 2);
+        const neutralSamples = allValidComments.filter((c: any) => c.new_BERT === 0).slice(0, 2);
+        const negativeSamples = allValidComments.filter((c: any) => c.new_BERT === -1).slice(0, 2);
+
+        // 3. Junta tudo em um único array para a amostra
+        this.sampleComments = [...positiveSamples, ...neutralSamples, ...negativeSamples];
       }
 
       // Dados de bootstrap
@@ -412,14 +213,15 @@ export class OpinionAnalysisComponent implements OnInit {
       this.bootstrapGroups = this.groupBootstrapResults(this.bootstrapStats);
 
       // Dados de métricas
-      if (data.datasets && data.datasets.metrics) {
-        this.metrics = Array.isArray(data.datasets.metrics) ? data.datasets.metrics : Object.values(data.datasets.metrics);
-        this.availableTechniques = [...new Set(this.metrics.map((m: any) => m.technique || m.model || 'Não especificado'))];
-        this.filteredMetrics = [...this.metrics];
-        
-        if (this.availableTechniques.length > 0) {
-          this.selectedTechnique = this.availableTechniques[0];
-          this.filterMetrics();
+      if (data.bootstrap) {
+        // As métricas estão na propriedade 'bootstrap', não em 'datasets'
+        const metricsData = Array.isArray(data.bootstrap) ? data.bootstrap : Object.values(data.bootstrap);
+
+        // Verificamos se os dados são válidos antes de atribuir
+        if (metricsData && metricsData.length > 0) {
+          this.metrics = metricsData;
+
+          this.calculateModelAccuracy(metricsData);
         }
       }
 
@@ -432,7 +234,7 @@ export class OpinionAnalysisComponent implements OnInit {
 
   prepareSentimentChart() {
     this.sentimentChartData = {
-      labels: ['Negativo', 'Neutro', 'Positivo'],
+      labels: ['Desaprovação', 'Neutro', 'Aprovação'],
       datasets: [{
         data: [
           this.sentimentPercentages.negative,
@@ -467,98 +269,98 @@ export class OpinionAnalysisComponent implements OnInit {
   }
 
   prepareMetricsChart() {
-    if (this.filteredMetrics.length === 0) return;
+    // Verifica se há métricas para processar
+    if (this.metrics.length === 0) return;
 
-    const labels = this.filteredMetrics.map((m: any) => m.name || m.dataset || 'Dataset');
-    const accuracyData = this.filteredMetrics.map((m: any) => m.accuracy || m.score || 0);
-    const f1Data = this.filteredMetrics.map((m: any) => m.f1_score || m.f1 || 0);
+    // Extrai os rótulos e os dados da média da estrutura de dados correta
+    const labels = this.metrics.map((m: any) => m[''] || 'Métrica'); // Ex: 'precision_class_0'
+    const meanData = this.metrics.map((m: any) => m.mean || 0);
 
+    // Monta a estrutura de dados para o gráfico de barras
     this.metricsChartData = {
       labels: labels,
       datasets: [
         {
-          label: 'Acurácia',
-          data: accuracyData,
-          backgroundColor: '#3b82f6',
-          borderColor: '#2563eb',
-          borderWidth: 1
-        },
-        {
-          label: 'F1-Score',
-          data: f1Data,
-          backgroundColor: '#10b981',
-          borderColor: '#059669',
+          label: 'Média (Mean)',
+          data: meanData,
+          backgroundColor: 'rgba(59, 130, 246, 0.7)', // Azul padrão do site
+          borderColor: 'rgb(59, 130, 246)',
           borderWidth: 1
         }
       ]
     };
 
+    // Define as opções do gráfico
     this.metricsChartOptions = {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'top'
+          position: 'top',
         }
       },
       scales: {
         y: {
           beginAtZero: true,
-          max: 1
+          // Formata o eixo Y para exibir como porcentagem
+          ticks: {
+            callback: function(value: any) {
+              if (typeof value === 'number' && value >= 0 && value <= 1) {
+                return (value * 100).toFixed(0) + '%';
+              }
+              return value;
+            }
+          }
+        },
+        x: {
+          // Rotaciona os rótulos do eixo X para evitar sobreposição
+          ticks: {
+            autoSkip: false,
+            maxRotation: 90,
+            minRotation: 45
+          }
         }
       }
     };
   }
 
-  filterMetrics() {
-    if (!this.selectedTechnique || this.selectedTechnique === '') {
-      this.filteredMetrics = [...this.metrics];
-    } else {
-      this.filteredMetrics = this.metrics.filter((metric: any) => 
-        (metric.technique || metric.model || 'Não especificado') === this.selectedTechnique
-      );
-    }
-    this.prepareMetricsChart();
-  }
 
   groupBootstrapResults(results: any[]): any[] {
-    const groups: any[] = [];
-    
-    if (results.length === 0) return groups;
-
-    // Se é um único resultado, criar grupo baseado nas propriedades
-    if (results.length === 1) {
-      const result = results[0];
-      Object.keys(result).forEach(key => {
-        if (typeof result[key] === 'object' && result[key] !== null) {
-          groups.push({
-            name: key,
-            data: result[key],
-            summary: this.createBootstrapSummary(result[key])
-          });
-        }
-      });
-    } else {
-      // Múltiplos resultados, agrupar por técnica ou modelo
-      const groupMap = new Map();
-      results.forEach(result => {
-        const key = result.technique || result.model || 'Geral';
-        if (!groupMap.has(key)) {
-          groupMap.set(key, []);
-        }
-        groupMap.get(key).push(result);
-      });
-
-      groupMap.forEach((data, name) => {
-        groups.push({
-          name,
-          data,
-          summary: this.createBootstrapSummary(data)
-        });
-      });
+    if (!results || results.length === 0) {
+      return [];
     }
 
-    return groups;
+    // 1. Agrupa os resultados por métrica (precision, recall, f1)
+    const groupedByMetric = results.reduce((acc, item) => {
+      // Extrai o nome da métrica e a classe (ex: 'precision_class_0')
+      const key = item[''];
+      if (!key) return acc;
+
+      const parts = key.split('_class_');
+      const metricName = parts[0]; // 'precision', 'recall', ou 'f1'
+      const classId = parts[1]; // '0', '1', ou '2'
+
+      // Cria o grupo de métrica se ele não existir
+      if (!acc[metricName]) {
+        acc[metricName] = {
+          metric: metricName,
+          items: []
+        };
+      }
+
+      // Adiciona o item ao grupo correto
+      acc[metricName].items.push({
+        class: classId,
+        mean: item.mean,
+        lower_ci: item.lower_95_ci,
+        upper_ci: item.upper_95_ci
+      });
+
+      return acc;
+    }, {} as any);
+
+    // 2. Converte o objeto de grupos em um array, que é o que o *ngFor espera
+    return Object.values(groupedByMetric);
   }
 
   createBootstrapSummary(data: any): any {
@@ -577,29 +379,30 @@ export class OpinionAnalysisComponent implements OnInit {
     return { count: 0, avgScore: 0 };
   }
 
-  getSentimentLabel(sentiment: number): string {
-    switch (sentiment) {
-      case -1: return 'Negativo';
-      case 0: return 'Neutro';
-      case 1: return 'Positivo';
-      default: return 'Indefinido';
-    }
-  }
-
-  formatDate(dateString: string): string {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR');
-    } catch {
-      return dateString;
-    }
-  }
-  
   formatNumber(num: number): string {
     if (num >= 1000) {
       return (num / 1000).toFixed(1) + 'K';
     }
     return num.toString();
+  }
+
+  calculateModelAccuracy(bootstrapData: any[]): void {
+    // Função auxiliar para calcular a média de uma métrica específica
+    const calculateAverage = (metricName: string): number => {
+      const items = bootstrapData.filter(item => item[''] && item[''].startsWith(metricName));
+      if (items.length === 0) return 0;
+
+      const sum = items.reduce((acc, item) => acc + item.mean, 0);
+      const average = (sum / items.length) * 100;
+      return Math.round(average); // Arredonda para o inteiro mais próximo
+    };
+
+    // Calcula e armazena a média para cada métrica
+    this.modelAccuracy = {
+      precision: calculateAverage('precision_class_'),
+      recall: calculateAverage('recall_class_'),
+      f1Score: calculateAverage('f1_class_')
+    };
   }
 
 }
