@@ -2,15 +2,20 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { assetUrl } from './asset-url.util';
+import { DATA_CONFIG } from '../data-config';
 
 @Injectable({ providedIn: 'root' })
 export class SentimentService {
   private base: string;
 
   constructor(private http: HttpClient) {
-    const baseTag = document.getElementsByTagName('base')[0];
-    const baseHref = (baseTag && baseTag.getAttribute('href')) || '/';
-    this.base = baseHref.endsWith('/') ? `${baseHref}assets/data/sentiment` : `${baseHref}/assets/data/sentiment`;
+    if (DATA_CONFIG.BASE_DATA_URL) {
+      this.base = `${DATA_CONFIG.BASE_DATA_URL}/sentiment`;
+    } else {
+      const baseTag = document.getElementsByTagName('base')[0];
+      const baseHref = (baseTag && baseTag.getAttribute('href')) || '/';
+      this.base = baseHref.endsWith('/') ? `${baseHref}assets/data/sentiment` : `${baseHref}/assets/data/sentiment`;
+    }
   }
 
   private async fetchJson(fileName: string): Promise<any> {
@@ -82,8 +87,12 @@ export class SentimentService {
     const root = baseHref.endsWith('/') ? baseHref : baseHref + '/';
 
     // Caminhos dos arquivos
-    const trainUrl = `${root}assets/data/sentiment/treinamento_model_211124.json`;
-    const bootstrapUrl = `${root}assets/data/sentiment/bootstrap_results_211124.json`;
+    const trainUrl = DATA_CONFIG.BASE_DATA_URL 
+      ? `${DATA_CONFIG.BASE_DATA_URL}/sentiment/treinamento_model_211124.json`
+      : `${root}assets/data/sentiment/treinamento_model_211124.json`;
+    const bootstrapUrl = DATA_CONFIG.BASE_DATA_URL
+      ? `${DATA_CONFIG.BASE_DATA_URL}/sentiment/bootstrap_results_211124.json`
+      : `${root}assets/data/sentiment/bootstrap_results_211124.json`;
 
     // 1) Tenta ler o arquivo único de treino (amostra que você enviou)
     let train: any[] = [];
@@ -100,7 +109,7 @@ export class SentimentService {
     if (!Array.isArray(train) || !train.length) {
       try {
         const [labels, bootstrap] = await Promise.all([
-          this.http.get<any>('assets/data/sentiment/train_labels.json').toPromise(),
+          this.http.get<any>(DATA_CONFIG.BASE_DATA_URL ? `${DATA_CONFIG.BASE_DATA_URL}/sentiment/train_labels.json` : 'assets/data/sentiment/train_labels.json').toPromise(),
           this.http.get<any[]>(bootstrapUrl).toPromise(),
         ]);
         const total = Object.values(labels || {}).reduce((s: any, n: any) => s + (n as number), 0);
@@ -274,8 +283,12 @@ export class SentimentService {
     const baseHref = (baseTag && baseTag.getAttribute('href')) || '/';
     const root = baseHref.endsWith('/') ? baseHref : baseHref + '/';
 
-    const baselineJsonUrl = `${root}assets/data/sentiment/bootstrap_results_211124.json`;
-    const indexUrl = `${root}assets/data/sentiment/bootstrap/index.json`;
+    const baselineJsonUrl = DATA_CONFIG.BASE_DATA_URL
+      ? `${DATA_CONFIG.BASE_DATA_URL}/sentiment/bootstrap_results_211124.json`
+      : `${root}assets/data/sentiment/bootstrap_results_211124.json`;
+    const indexUrl = DATA_CONFIG.BASE_DATA_URL
+      ? `${DATA_CONFIG.BASE_DATA_URL}/sentiment/bootstrap/index.json`
+      : `${root}assets/data/sentiment/bootstrap/index.json`;
 
     const models: Array<{ model: string; metrics: any }> = [];
 
@@ -299,7 +312,9 @@ export class SentimentService {
       if (respIdx.ok) {
         const list = await respIdx.json() as Array<{ label: string; file: string }>;
         for (const item of list) {
-          const url = `${root}assets/data/sentiment/bootstrap/${item.file}`;
+          const url = DATA_CONFIG.BASE_DATA_URL
+            ? `${DATA_CONFIG.BASE_DATA_URL}/sentiment/bootstrap/${item.file}`
+            : `${root}assets/data/sentiment/bootstrap/${item.file}`;
           try {
             const isJson = item.file.toLowerCase().endsWith('.json');
             let rows: { key: string; mean: number; lower: number; upper: number }[] = [];

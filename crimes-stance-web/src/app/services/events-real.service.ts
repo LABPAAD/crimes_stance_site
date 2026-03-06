@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { DATA_CONFIG } from '../data-config';
 
 /**
  * Lê datasets de eventos em “cenário real” a partir de:
@@ -12,11 +13,15 @@ export class EventsRealService {
   private base: string;
 
   constructor() {
-    // monta base respeitando <base href> (GitHub Pages)
-    const baseTag = document.getElementsByTagName('base')[0];
-    const baseHref = (baseTag && baseTag.getAttribute('href')) || '/';
-    const root = baseHref.endsWith('/') ? baseHref : baseHref + '/';
-    this.base = `${root}assets/data/events/cenario-real`;
+    if (DATA_CONFIG.BASE_DATA_URL) {
+      this.base = `${DATA_CONFIG.BASE_DATA_URL}/events/cenario-real`;
+    } else {
+      // monta base respeitando <base href> (GitHub Pages)
+      const baseTag = document.getElementsByTagName('base')[0];
+      const baseHref = (baseTag && baseTag.getAttribute('href')) || '/';
+      const root = baseHref.endsWith('/') ? baseHref : baseHref + '/';
+      this.base = `${root}assets/data/events/cenario-real`;
+    }
   }
 
   private async fetchJson<T=any>(path: string): Promise<T> {
@@ -86,15 +91,19 @@ export class EventsRealService {
   }
 
   private resolveAssetUrl(fileField: string): string {
-    // tolera prefixos “events/…”
+    if (DATA_CONFIG.BASE_DATA_URL) {
+      // No R2, mantemos a estrutura /events/...
+      if (fileField.startsWith('events/')) {
+        return `${DATA_CONFIG.BASE_DATA_URL}/${fileField}`;
+      }
+      return `${this.base}/${fileField}`;
+    }
+
+    // Comportamento original para local assets
     if (fileField.startsWith('events/')) {
-      // base já é .../events/cenario-real
-      // mas o arquivo do exemplo está em "events/cenario-real/…"
-      // se vier "events/cenario-real/..." mantemos relativo à raiz assets
-      const prefix = this.base.replace('/cenario-real', ''); // .../assets/data/events
+      const prefix = this.base.replace('/cenario-real', ''); 
       return `${prefix}/${fileField.replace(/^events\//,'')}`;
     }
-    // caminho relativo à pasta “cenario-real”
     return `${this.base}/${fileField}`;
   }
 

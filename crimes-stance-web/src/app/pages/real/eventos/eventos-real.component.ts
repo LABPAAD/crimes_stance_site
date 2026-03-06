@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ChartModule } from 'primeng/chart';
 import { EventsRealService } from '../../../services/events-real.service';
-import { withTimeout } from '../../../services/promise-timeout.util';
 import { EventosTimelineChartComponent } from './eventos-timeline-chart.component';
 
 @Component({
@@ -18,7 +17,6 @@ export class EventosRealComponent implements OnInit {
   private real = inject(EventsRealService);
 
   isLoading = true;
-  timedOut = false;
   error = '';
 
   datasetId = '';
@@ -44,16 +42,11 @@ export class EventosRealComponent implements OnInit {
 
     const load = this.real.loadDataset(this.datasetId);
     try {
-      const data = await withTimeout(load, 5000);
+      const data = await load;
       this.apply(data);
     } catch (e:any) {
-      if (e?.message === 'TIMEOUT') {
-        this.timedOut = true; this.isLoading = false;
-        load.then(full => this.apply(full))
-            .catch(() => { this.error = 'Não foi possível carregar o dataset.'; });
-      } else {
-        this.error = 'Não foi possível carregar o dataset.'; this.isLoading = false;
-      }
+      this.error = 'Não foi possível carregar o dataset.';
+      this.isLoading = false;
     }
   }
 
@@ -116,7 +109,6 @@ export class EventosRealComponent implements OnInit {
     this.dayOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, elements: { point: { radius: 3, hoverRadius: 6 } }, scales: { y: { beginAtZero: true } } };
 
     this.isLoading = false;
-    this.timedOut = false;
     this.error = '';
 
     // Define período padrão do gráfico diário: fim = última data; início = fim - 5 dias

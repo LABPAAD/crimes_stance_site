@@ -7,9 +7,14 @@
     <p class="text-slate-600 mt-1">Eventos detectados pela heurística no dataset selecionado.</p>
   </header>
 
-  <div class="bg-white rounded-xl border border-slate-200 p-6" *ngIf="isLoading">Carregando…</div>
-  <div class="bg-white rounded-xl border border-slate-200 p-6 text-red-600" *ngIf="!isLoading && error">{{ error }}</div>
-  <div *ngIf="timedOut && !error" class="bg-amber-50 border border-amber-200 text-amber-700 rounded-md p-3">Conexão lenta. Exibindo o que já foi carregado…</div>
+  <div class="flex flex-col items-center justify-center p-12 bg-white rounded-xl border border-slate-200" *ngIf="isLoading">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+    <p class="text-slate-600 font-medium">Carregando eventos...</p>
+  </div>
+
+  <div class="bg-white rounded-xl border border-slate-200 p-6 text-red-600" *ngIf="!isLoading && error">
+    <i class="bi bi-exclamation-triangle mr-2"></i> {{ error }}
+  </div>
 
   <ng-container *ngIf="!isLoading && !error">
     

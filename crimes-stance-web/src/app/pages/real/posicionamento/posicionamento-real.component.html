@@ -7,10 +7,13 @@
     <p class="text-slate-600 mt-1">Inferência do modelo sobre comentários reais do dataset selecionado.</p>
   </header>
 
-  <div class="bg-white rounded-xl border border-slate-200 p-6" *ngIf="isLoading">Carregando…</div>
-  <div class="bg-white rounded-xl border border-slate-200 p-6 text-red-600" *ngIf="!isLoading && error">{{ error }}</div>
-  <div *ngIf="timedOut && !error" class="bg-amber-50 border border-amber-200 text-amber-700 rounded-md p-3">
-    Conexão lenta. Exibindo o que já foi carregado…
+  <div class="flex flex-col items-center justify-center p-12 bg-white rounded-xl border border-slate-200" *ngIf="isLoading">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+    <p class="text-slate-600 font-medium">Carregando dados da análise...</p>
+  </div>
+
+  <div class="bg-white rounded-xl border border-slate-200 p-6 text-red-600" *ngIf="!isLoading && error">
+    <i class="bi bi-exclamation-triangle mr-2"></i> {{ error }}
   </div>
 
   <ng-container *ngIf="!isLoading && !error">
@@ -20,17 +23,17 @@
         [label]="'Opiniões Analisadas'"
         [value]="(totalComments | number) ?? '0'"
         [icon]="'bi-chat-text'"
-        [color]="'blue'">
+        [color]="'blue'"
+        [isLoading]="isLoading">
       </app-analysis-stat-card>
-      <app-analysis-stat-card [label]="'Aprovação'" [value]="sentimentPercentages.positive + '%'" [icon]="'bi-emoji-smile'" [color]="'green'"></app-analysis-stat-card>
-      <app-analysis-stat-card [label]="'Desaprovação'" [value]="sentimentPercentages.negative + '%'" [icon]="'bi-emoji-frown'" [color]="'red'"></app-analysis-stat-card>
-      <app-analysis-stat-card [label]="'Neutro'" [value]="sentimentPercentages.neutral + '%'" [icon]="'bi-emoji-neutral'" [color]="'yellow'"></app-analysis-stat-card>
+      <app-analysis-stat-card [label]="'Aprovação'" [value]="sentimentPercentages.positive + '%'" [icon]="'bi-emoji-smile'" [color]="'green'" [isLoading]="isLoading"></app-analysis-stat-card>
+      <app-analysis-stat-card [label]="'Desaprovação'" [value]="sentimentPercentages.negative + '%'" [icon]="'bi-emoji-frown'" [color]="'red'" [isLoading]="isLoading"></app-analysis-stat-card>
+      <app-analysis-stat-card [label]="'Neutro'" [value]="sentimentPercentages.neutral + '%'" [icon]="'bi-emoji-neutral'" [color]="'yellow'" [isLoading]="isLoading"></app-analysis-stat-card>
     </div>
 
-    <!-- Distribuição + tópicos -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+    <!-- Seção de Distribuição -->
+    <div class="mt-6">
       <app-positioning-distribution [counts]="sentimentCounts" [percentages]="sentimentPercentages"></app-positioning-distribution>
-      <app-topics-card [topicCounts]="topicCounts"></app-topics-card>
     </div>
 
     <!-- Volume semanal com drill-down -->
@@ -44,9 +47,22 @@
       </div>
     </div>
 
-    <!-- Gráficos e métricas -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-      <app-positioning-doughnut-chart [data]="sentimentChartData" [options]="sentimentChartOptions"></app-positioning-doughnut-chart>
+    <!-- Amostra de Comentários -->
+    <div class="mt-6">
+      <app-comments-sample-card [comments]="sampleComments"></app-comments-sample-card>
+    </div>
+
+    <!-- Info Card Final -->
+    <div class="bg-white rounded-xl border border-slate-200 p-8 flex flex-col md:flex-row justify-between items-center gap-6 mt-6 mb-12">
+      <div class="flex-grow">
+        <h3 class="text-xl font-bold text-slate-900 mb-2">Sobre esta análise</h3>
+        <p class="text-slate-600 max-w-2xl">
+          Esta visualização apresenta a inferência automática realizada pelo modelo BERT ajustado para o contexto de segurança pública de acordo com o dataset selecionado.
+        </p>
+      </div>
+      <div class="flex-shrink-0">
+        <i class="bi bi-info-circle text-5xl text-blue-500 opacity-20"></i>
+      </div>
     </div>
   </ng-container>
 </div>

@@ -5,6 +5,7 @@ import { ChartModule } from 'primeng/chart';
 
 import { EventsService } from '../../services/events.service';
 import { SentimentService } from '../../services/sentiment.service';
+import { DATA_CONFIG } from '../../data-config';
 
 // ----- Tipos mínimos usados aqui -----
 interface EventsOverview {
@@ -87,10 +88,20 @@ export class HomeComponent implements OnInit {
   // -------- helpers de dados locais --------
   private async fetchJson(path: string): Promise<any | null> {
     try {
-      const baseTag  = document.getElementsByTagName('base')[0];
-      const baseHref = (baseTag && baseTag.getAttribute('href')) || '/';
-      const root = baseHref.endsWith('/') ? baseHref : baseHref + '/';
-      const resp = await fetch(root + path);
+      let url: string;
+      if (DATA_CONFIG.BASE_DATA_URL) {
+        // Se estivermos usando R2, removemos o prefixo 'assets/data/' do caminho se ele existir,
+        // pois no R2 as pastas 'events' e 'sentiment' estão na raiz.
+        const cleanPath = path.replace('assets/data/', '');
+        url = `${DATA_CONFIG.BASE_DATA_URL}/${cleanPath}`;
+      } else {
+        const baseTag  = document.getElementsByTagName('base')[0];
+        const baseHref = (baseTag && baseTag.getAttribute('href')) || '/';
+        const root = baseHref.endsWith('/') ? baseHref : baseHref + '/';
+        url = root + path;
+      }
+      
+      const resp = await fetch(url);
       if (!resp.ok) return null;
       return await resp.json();
     } catch {
