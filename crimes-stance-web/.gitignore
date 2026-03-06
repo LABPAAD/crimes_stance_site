@@ -41,4 +41,9 @@ testem.log
 .DS_Store
 Thumbs.db
 
+# Environment variables
+.env
+.env.*
+!.env.example
+
 src/assets/data/sentiment/cenario-real/comentarios_2020_inferido_events.json

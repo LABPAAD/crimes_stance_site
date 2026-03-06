@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { DATA_CONFIG } from '../data-config';
 
 /**
  * Lê datasets de POSICIONAMENTO em “cenário real” a partir de:
@@ -12,11 +13,15 @@ export class SentimentRealService {
   private base: string;
 
   constructor() {
-    // respeita <base href> (GitHub Pages)
-    const baseTag = document.getElementsByTagName('base')[0];
-    const baseHref = (baseTag && baseTag.getAttribute('href')) || '/';
-    const root = baseHref.endsWith('/') ? baseHref : baseHref + '/';
-    this.base = `${root}assets/data/sentiment/cenario-real`;
+    if (DATA_CONFIG.BASE_DATA_URL) {
+      this.base = `${DATA_CONFIG.BASE_DATA_URL}/sentiment/cenario-real`;
+    } else {
+      // respeita <base href> (GitHub Pages)
+      const baseTag = document.getElementsByTagName('base')[0];
+      const baseHref = (baseTag && baseTag.getAttribute('href')) || '/';
+      const root = baseHref.endsWith('/') ? baseHref : baseHref + '/';
+      this.base = `${root}assets/data/sentiment/cenario-real`;
+    }
   }
 
   private async fetchJson<T = any>(url: string): Promise<T> {
@@ -65,29 +70,32 @@ export class SentimentRealService {
   }
 
   private resolve(input: string): string {
-    // Normaliza e registra para debug
+    // 1) URL absoluta
+    if (/^https?:\/\//i.test(input)) return input;
+
+    if (DATA_CONFIG.BASE_DATA_URL) {
+      // No R2, as pastas estão na raiz
+      if (input.startsWith('data/')) {
+        return `${DATA_CONFIG.BASE_DATA_URL}/sentiment/cenario-real/${input.replace(/^data\//, '')}`;
+      }
+      if (input.startsWith('sentiment/')) {
+        return `${DATA_CONFIG.BASE_DATA_URL}/${input}`;
+      }
+      if (input.startsWith('assets/')) {
+        return `${DATA_CONFIG.BASE_DATA_URL}/${input.replace('assets/data/', '')}`;
+      }
+      return `${this.base}/${input}`;
+    }
+
+    // Comportamento original
     const baseTag = document.getElementsByTagName('base')[0];
     const baseHref = (baseTag && baseTag.getAttribute('href')) || '/';
     const root = baseHref.endsWith('/') ? baseHref : baseHref + '/';
 
-    // Ajuda a rastrear no console
-    console.log('[SentimentRealService] resolve()', { input, baseHref: root });
-
-    // 1) URL absoluta
-    if (/^https?:\/\//i.test(input)) return input;
-
-    // 2) Caminho começando com "assets/..." -> respeita baseHref
     if (input.startsWith('assets/')) return `${root}${input}`;
-
-    // 3) Caminho começando com "data/..." (padrão do datasets.json que você mostrou)
-    //    Ex.: data/comentarios_2021_brasil_newBERT.json
     if (input.startsWith('data/')) return `${root}assets/data/sentiment/cenario-real/${input.replace(/^data\//, '')}`;
-
-    // 4) Caminho começando com "sentiment/..." (fallback comum)
     if (input.startsWith('sentiment/')) return `${root}assets/data/${input}`;
 
-    // 5) Caminho relativo ao diretório cenario-real (sem prefixo)
-    //    Ex.: comentarios_2021_brasil_newBERT.json
     return `${this.base}/${input}`;
   }
 }
